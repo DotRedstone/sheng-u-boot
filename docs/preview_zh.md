@@ -9,7 +9,7 @@
 - 使用附件的 `sha256sums.txt` 核对镜像，再用 `fastboot getvar product` 和 `fastboot getvar current-slot` 确认 `sheng`、活动槽 `b`。具备已知可用的配套载荷后，仅刷 `fastboot flash boot_b sheng-u-boot-boot_b.img`。保留 Android A 槽、`userdata`、GPT、身份和校准分区。
 - Android v4 封装还依赖 ABL 读取 B 槽的 `vendor_boot_b`、`dtbo_b` 和 `vbmeta{,_system}_b`。在 B 槽刷过其他 ROM 后，先核对这些分区的备份与兼容性。实机出现过镜像写入成功但随后回退 A 槽，恢复同一次已启动备份中的配套分区后才进入 U-Boot。恢复时使用该设备自己的已知可用备份。
 - Android 入口要求从实际 ROM 采集配置、检查启动镜像有效长度，以及 A/B DTBO 相同。安装步骤见 [ROM 配置文档](https://github.com/DotRedstone/nixos-sheng/blob/735c224caf44da2a94c8cfa7aac9d68ef9fdc075/docs/uboot-android-rom-profile_zh.md)。ROM 更新后先按原生 A 槽验证，再重新采集。
-- 如果设备启动失败，从 ABL Fastboot 刷回已知可启动的 `boot_b` 备份。EFI 载荷有变时，同时按 NixOS 安装流程恢复 ESP 默认项。刷回前先检查当前槽位和 ESP 状态。
+- 如果设备启动失败，可通过 ABL Fastboot 返回原生 Android A 槽，或刷回与现有 B 槽配套分区兼容、实机验证过的 `boot_b`。EFI 载荷有变时，按 NixOS 安装流程恢复 ESP 默认项。刷回前先检查当前槽位和配套分区。
 
 ## 已知限制
 
@@ -20,4 +20,6 @@
 
 首个可刷预览发布前，在同一组 `boot_b` 与 EFI 载荷上复测 NixOS、受支持 Android、冷启动、关机插墙充、TWRP 和 ABL Fastboot 回退。
 
-2026-11-19，预览镜像从 B 槽经 U-Boot EFI 启动现有 NixOS 7.3.0 并进入桌面。关机后拔除电脑线，再连接墙充，实机直接进入电池充电画面。
+2026-11-19，预览镜像从 B 槽经 U-Boot EFI 启动现有 NixOS 7.3.0 并进入桌面。关机后拔除电脑线，再连接墙充，实机直接进入电池充电画面。拔除墙充后只按电源键冷启动，默认菜单项再次进入 NixOS 桌面。从关机状态按音量加和电源进入 B 槽 TWRP，恢复环境读回的 `boot_b` 镜像与候选一致。
+
+同一设备通过 ABL Fastboot 刷回旧 Android v0 格式的 NixOS 镜像后停在 Fastboot。重新刷入本候选的 v4 镜像，图形目标和显示管理器恢复启动，设备端读回与候选一致。该 v0 镜像在本次 B 槽配套分区下未通过回退验证。
