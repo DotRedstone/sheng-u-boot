@@ -2,6 +2,21 @@
 
 适用 Xiaomi Pad 6S Pro 12.4（`sheng`）。首版面向已搭建 NixOS EFI 启动环境的测试者。仓库提供 B 槽启动镜像和校验文件，配套 NixOS EFI 载荷、内核与 rootfs 的版本要求不变。
 
+## 启动菜单
+
+用音量键移动，电源键确认。15 秒倒计时结束时启动默认的 NixOS。
+
+| 菜单项 | 行为 |
+| --- | --- |
+| `Boot NixOS` | 进入 systemd-boot 的 NixOS 世代菜单 |
+| `Boot Android A directly (experimental)` | 从当前 U-Boot 启动兼容的 A 槽 Android，保留 ABL 的活动槽 |
+| `Restart device` | 重启平板，再次显示启动菜单 |
+| `0. Exit to U-Boot console` | 进入 U-Boot 的 `=>` 命令行。通过 USB 串口输入 `run menucmd` 可重新打开菜单 |
+
+如果系统引导报错并返回 U-Boot，按提示确认后会回到无倒计时的菜单，可重新选择启动项。
+
+菜单修复在 Sheng 实机通过 USB 串口验收。退出项停在 `=>` 并执行命令。临时使 Android 配置读取失败后，可返回菜单并停留超过 15 秒。从该菜单选择重启后，U-Boot USB 串口重新枚举，默认项随后启动 NixOS 7.3.0 的图形会话。另一次选择 Android 后，PixelOS 17 的 ADB 报告启动完成，Android 使用 A 槽，ABL 活动槽仍为 B。
+
 ## 安装边界
 
 - 已解锁且可进入 ABL Fastboot。备份完整的 `boot_b`、`linux-boot` 和设备重要数据，将可启动的原镜像保存在电脑上。
