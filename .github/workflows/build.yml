@@ -1,0 +1,31 @@
+name: Build Sheng U-Boot
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - name: Test ROM profile generator
+        run: python3 scripts/test-sheng-android-rom-config.py
+      - name: Build and checksum preview image
+        run: |
+          nix build .#bootImage --print-build-logs -o result
+          mkdir out
+          cp result out/sheng-u-boot-boot_b.img
+          (
+            cd out
+            sha256sum sheng-u-boot-boot_b.img > sha256sums.txt
+            printf '%s\n' "$GITHUB_SHA" > source-revision
+          )
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sheng-u-boot-preview
+          path: out/
+          if-no-files-found: error
