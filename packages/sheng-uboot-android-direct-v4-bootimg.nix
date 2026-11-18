@@ -23,7 +23,8 @@ runCommand "sheng-u-boot-android-direct-v4-probe.img" {
   };
 } ''
   test -s ${firmware}/u-boot.bin
-  strings ${firmware}/u-boot.bin | grep -Fqx 'bootcmd=run menucmd; run boot_linux; reset'
+  strings ${firmware}/u-boot.bin | grep -Fqx 'bootcmd=run menucmd'
+  strings ${firmware}/u-boot.bin | grep -Fqx '0. Exit to U-Boot console'
   mkbootimg \
     --header_version 4 \
     --kernel ${firmware}/u-boot.bin \

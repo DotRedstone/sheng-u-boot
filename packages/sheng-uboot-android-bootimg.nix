@@ -55,6 +55,7 @@ let
       ../patches/u-boot/sheng-baseline/sheng/0006-charger-bypass-direct-menu.patch
       ../patches/u-boot/sheng-baseline/sheng/0007-abl-boot-reason-embedded-dt.patch
       ../patches/u-boot/sheng-baseline/sheng/0008-charger-exclude-hard-reset.patch
+      ../patches/u-boot/sheng-baseline/sheng/0009-bootmenu-label-console.patch
     ];
     filesToInstall = if androidDirectProbe then [
       "u-boot.bin"
@@ -100,6 +101,7 @@ let
       CONFIG_CMD_ITEST=y
       CONFIG_OF_LIBFDT_OVERLAY=y
       CONFIG_OF_EMBED=y
+      # CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE is not set
       # ABL passes over 1 KiB of bootargs; allow the test shell to retain them.
       CONFIG_SYS_CBSIZE=4096
       CONFIG_SYS_MAXARGS=128
@@ -199,6 +201,7 @@ else
     grep -Fx 'CONFIG_CMD_ITEST=y' ${firmware}/.config
     grep -Fx 'CONFIG_OF_LIBFDT_OVERLAY=y' ${firmware}/.config
     grep -Fx 'CONFIG_OF_EMBED=y' ${firmware}/.config
+    grep -Fx '# CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE is not set' ${firmware}/.config
     grep -Fx 'CONFIG_SYS_CBSIZE=4096' ${firmware}/.config
     grep -Fx 'CONFIG_SYS_MAXARGS=128' ${firmware}/.config
     grep -Fx 'CONFIG_ENV_DEFAULT_ENV_TEXT_FILE="board/qualcomm/sheng-android-direct.env"' ${firmware}/.config

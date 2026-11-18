@@ -1,0 +1,18 @@
+From: DotRedstone <noreply@github.com>
+Subject: [PATCH] bootmenu: label the exit to the U-Boot console
+
+Name the destination of the built-in exit entry on devices where the
+console is available.
+
+--- a/cmd/bootmenu.c
++++ b/cmd/bootmenu.c
+@@ -425,4 +425,5 @@
+-		if (!IS_ENABLED(CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE))
+-			entry->title = strdup("0. Exit");
+-		else
+-			entry->title = strdup("0. Quit");
++		if (!IS_ENABLED(CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE)) {
++			entry->title = strdup("0. Exit to U-Boot console");
++		} else {
++			entry->title = strdup("0. Quit");
++		}
