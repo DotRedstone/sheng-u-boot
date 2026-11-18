@@ -6,7 +6,7 @@
 | --- | --- |
 | NixOS 7.3.0 | 实机到达桌面，验证过冷启动、关机充电和恢复回退 |
 | Android 16 | 原实机 ROM 从 U-Boot 菜单直启成功 |
-| PixelOS 17 | ABL 原生 A 槽启动成功，U-Boot 直启待验证 |
+| PixelOS 17（2026-11-18 构建） | 从 B 槽 U-Boot 菜单直启成功，ADB 可用 |
 | Alpine / Debian | 短时 EFI 用户态启动探针 |
 
 ## 构建

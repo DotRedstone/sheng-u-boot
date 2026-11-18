@@ -13,8 +13,8 @@
 
 ## 已知限制
 
-- Android 直启未经 U-Boot AVB 验证。当前实机直启记录覆盖单个 ROM。PixelOS 17 的独立启动已完成，菜单兼容性尚待上机。
-- 当前固件沿用 ABL 交给 B 槽的设备树。若 A/B DTBO 不同，保留两槽原镜像。比较旧、新 ROM 时应核对覆盖层中的板型和 SoC 标识，索引可能随 ROM 构建变化。离线合成设备树可检查覆盖层，但仍需实机证明 Android 由 U-Boot 直启，并确认 ABL 活动槽保持为 B。
+- Android 直启未经 U-Boot AVB 验证。已在单台设备验证原 Android 16 ROM 与 2026-11-18 的 PixelOS 17 构建。更换 ROM 或 OTA 后需重新采集并实测。
+- 当前固件沿用 ABL 交给 B 槽的设备树。若 A/B DTBO 不同，保留两槽原镜像，安装器会拒绝自动接入。比较旧、新 ROM 时应核对覆盖层中的板型和 SoC 标识，索引可能随 ROM 构建变化。离线合成设备树可检查覆盖层，但仍需实机证明 Android 由 U-Boot 直启，并确认 ABL 活动槽保持为 B。
 - 目前仅有实体按键菜单与继承的屏幕输出。Android 和 NixOS 的触控、无线、音频等由各自系统和内核维护。
 - Alpine 和 Debian 仅完成启动探针。Windows 与 UniXNU 不随本版提供。
 
@@ -23,3 +23,5 @@
 2026-11-19，预览镜像从 B 槽经 U-Boot EFI 启动现有 NixOS 7.3.0 并进入桌面。关机后拔除电脑线，再连接墙充，实机直接进入电池充电画面。拔除墙充后只按电源键冷启动，默认菜单项再次进入 NixOS 桌面。从关机状态按音量加和电源进入 B 槽 TWRP，恢复环境读回的 `boot_b` 镜像与候选一致。
 
 同一设备通过 ABL Fastboot 刷回旧 Android v0 格式的 NixOS 镜像后停在 Fastboot。重新刷入本候选的 v4 镜像，图形目标和显示管理器恢复启动，设备端读回与候选一致。该 v0 镜像在本次 B 槽配套分区下未通过回退验证。
+
+同一候选从 U-Boot 菜单进入 PixelOS 17 桌面，ADB 报告 `sys.boot_completed=1` 与 Android 槽位 `_a`。从 Android 返回 ABL Fastboot 后，ABL 活动槽仍为 B。实机使用了 ESP 上已有的 ROM 配置，重新采集的内容与之相同。A/B DTBO 仍不同，本次结果只覆盖该设备的现有配套，未验证不匹配 DTBO 的自动配置安装。
