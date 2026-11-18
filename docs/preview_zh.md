@@ -19,3 +19,5 @@
 - Alpine 和 Debian 仅完成启动探针。Windows 与 UniXNU 不随本版提供。
 
 首个可刷预览发布前，在同一组 `boot_b` 与 EFI 载荷上复测 NixOS、受支持 Android、冷启动、关机插墙充、TWRP 和 ABL Fastboot 回退。
+
+2026-11-19，预览镜像从 B 槽经 U-Boot EFI 启动现有 NixOS 7.3.0 并进入桌面。关机后拔除电脑线，再连接墙充，实机直接进入电池充电画面。
