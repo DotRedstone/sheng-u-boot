@@ -2,6 +2,8 @@
 
 适用于 Xiaomi Pad 6S Pro 12.4（`sheng`，SM8550）的 U-Boot 移植。正常开机可从 B 槽菜单进入 NixOS 或直启兼容的 Android A 槽；NixOS 世代由 `linux-boot` 上的 systemd-boot 选择。
 
+[下载 U-Boot 预览版](https://github.com/DotRedstone/sheng-u-boot/releases)
+
 | 启动目标 | 验证范围 |
 | --- | --- |
 | NixOS 7.3.0 | 实机到达桌面，验证过冷启动、关机充电和恢复回退 |

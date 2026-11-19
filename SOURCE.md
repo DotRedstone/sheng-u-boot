@@ -7,3 +7,10 @@
 U-Boot 源码及其衍生补丁按原有文件许可分发，GPL 文本在 [LICENSES/GPL-2.0.txt](LICENSES/GPL-2.0.txt)。本项目原创集成工具延续原仓库的 [MIT 许可](LICENSE)。Linux 衍生文件以其原有许可声明为准。
 
 生成 `boot_b` 镜像所需的上游源码、补丁、配置、构建入口和工具链版本均由发布提交固定。构建仅使用 U-Boot 源码与主机工具，无需提取 ROM、设备分区或厂商二进制。
+
+Release 的对应源码归档包含 `project/`（发布提交）与 `upstream/u-boot/`（固定版本的上游源码）。使用归档中的上游树时，在解压后的顶层运行：
+
+```sh
+nix build ./project#bootImage --no-write-lock-file \
+  --override-input shengUbootSrc "path:$PWD/upstream/u-boot"
+```
