@@ -17,13 +17,53 @@
 
 菜单修复在 Sheng 实机通过 USB 串口验收。退出项停在 `=>` 并执行命令。临时使 Android 配置读取失败后，可返回菜单并停留超过 15 秒。从该菜单选择重启后，U-Boot USB 串口重新枚举，默认项随后启动 NixOS 7.3.0 的图形会话。另一次选择 Android 后，PixelOS 17 的 ADB 报告启动完成，Android 使用 A 槽，ABL 活动槽仍为 B。
 
-## 安装边界
+## 刷入教程
 
-- 已解锁且可进入 ABL Fastboot。备份完整的 `boot_b`、`linux-boot` 和设备重要数据，将可启动的原镜像保存在电脑上。
-- 已存在 `linux` 根分区和挂载到 `/boot` 的 `linux-boot` FAT ESP，ESP 上有与当前 NixOS 内核闭包匹配的 [EFI 载荷](https://github.com/DotRedstone/nixos-sheng/blob/735c224caf44da2a94c8cfa7aac9d68ef9fdc075/docs/uboot-efi-experiment_zh.md)。此预览不要求重刷或扩容 `linux`。若前置条件不满足，保留现有启动链。
-- 使用附件的 `sha256sums.txt` 核对镜像，再用 `fastboot getvar product` 和 `fastboot getvar current-slot` 确认 `sheng`、活动槽 `b`。具备已知可用的配套载荷后，仅刷 `fastboot flash boot_b sheng-u-boot-boot_b.img`。保留 Android A 槽、`userdata`、GPT、身份和校准分区。
-- Android v4 封装还依赖 ABL 读取 B 槽的 `vendor_boot_b`、`dtbo_b` 和 `vbmeta{,_system}_b`。在 B 槽刷过其他 ROM 后，先核对这些分区的备份与兼容性。实机出现过镜像写入成功但随后回退 A 槽，恢复同一次已启动备份中的配套分区后才进入 U-Boot。恢复时使用该设备自己的已知可用备份。
-- 如果设备启动失败，可通过 ABL Fastboot 返回原生 Android A 槽，或刷回与现有 B 槽配套分区兼容、实机验证过的 `boot_b`。EFI 载荷有变时，按 NixOS 安装流程恢复 ESP 默认项。刷回前先检查当前槽位和配套分区。
+**本版只刷 `boot_b`。** ABL 先选择活动槽，选中 B 槽才加载 U-Boot。U-Boot 随后从 `linux-boot` 加载 NixOS 的 EFI 引导器，或读取 A 槽的 `boot_a`、`vendor_boot_a`、`init_boot_a` 和 `dtbo_a` 来启动 Android。覆盖 `boot_a` 会破坏 Android 直启和原生 A 槽回退。
+
+### 刷入前检查
+
+- 设备已解锁，原生 Android A 槽已验证能启动。将本机可启动的 `boot_b`、完整 `linux-boot` 和重要数据备份到电脑。
+- 已有 `linux` 根分区和 `linux-boot` FAT ESP，ESP 已部署与现有 NixOS 内核闭包匹配的 [EFI 载荷](https://github.com/DotRedstone/nixos-sheng/blob/735c224caf44da2a94c8cfa7aac9d68ef9fdc075/docs/uboot-efi-experiment_zh.md)。原厂布局请先准备这些分区与载荷。
+- B 槽保留与 ABL 兼容的 `vendor_boot_b`、`dtbo_b`、`vbmeta_b` 和 `vbmeta_system_b`。若 B 槽曾刷入其他 ROM 或清空 `dtbo_b`，先核对本机已知可用的配套备份。实机曾因配套分区不匹配而在写入成功后回退到 A 槽。
+
+### 校验与刷写
+
+从同一个 Release 下载 `sheng-u-boot-boot_b.img` 和 `sha256sums.txt`，核对镜像的 SHA‑256：
+
+```sh
+grep -F '  sheng-u-boot-boot_b.img' sha256sums.txt | sha256sum -c -
+```
+
+Windows 可用 `Get-FileHash .\sheng-u-boot-boot_b.img -Algorithm SHA256`，与清单中的镜像摘要比较。
+
+关机后按住音量下和电源键进入 ABL Fastboot，再连接电脑。以下检查应只列出目标设备，`product` 应为 `sheng`，`is-userspace` 应为 `no`，`unlocked` 应为 `yes`。记录 `current-slot`。活动槽为 `a` 时，按前置条件确认 B 槽已有经过验证的配套启动分区和 EFI 载荷。
+
+```sh
+fastboot devices
+fastboot getvar product
+fastboot getvar is-userspace
+fastboot getvar unlocked
+fastboot getvar current-slot
+```
+
+检查通过后显式写入 `boot_b`。命令使用完整分区名 `boot_b`，保留 A 槽、`dtbo_b`、`userdata`、`super`、分区表和校准分区。
+
+```sh
+fastboot flash boot_b sheng-u-boot-boot_b.img
+```
+
+看到 `OKAY` 后，若原活动槽为 `a`，执行 `fastboot set_active b`，用 `fastboot getvar current-slot` 确认返回 `b`。然后重启：
+
+```sh
+fastboot reboot
+```
+
+开机后应先出现 U-Boot 菜单，再由默认项进入 NixOS 世代菜单。已安装 Android 直启配置的设备可另测菜单里的 Android A 条目。
+
+### 回退
+
+若 U-Boot 未出现或系统无法启动，用音量下和电源键回到 ABL Fastboot。预先验收过的原生 Android A 槽可通过 `fastboot set_active a` 后 `fastboot reboot` 恢复启动。要恢复 B 槽，使用 `fastboot flash boot_b boot_b.before.img` 刷回本机已知可用、与 B 槽配套分区兼容的备份。若 ESP 曾变更，按 NixOS 的 EFI 回退流程恢复其载荷和默认项。
 
 ## Android A 槽直启
 

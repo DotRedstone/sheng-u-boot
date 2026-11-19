@@ -2,7 +2,7 @@
 
 适用于 Xiaomi Pad 6S Pro 12.4（`sheng`，SM8550）的 U-Boot 移植。正常开机可从 B 槽菜单进入 NixOS 或直启兼容的 Android A 槽；NixOS 世代由 `linux-boot` 上的 systemd-boot 选择。
 
-[下载 U-Boot 预览版](https://github.com/DotRedstone/sheng-u-boot/releases)
+[下载 U-Boot 预览版](https://github.com/DotRedstone/sheng-u-boot/releases) · [刷入与回退教程](docs/preview_zh.md#刷入教程)
 
 符合接入条件的 Sheng Android ROM 共用同一个 `boot_b` 镜像。配置工具从原生 A 槽采集启动参数，安装到设备的 `linux-boot`；接入条件见 [Android A 槽直启说明](docs/preview_zh.md#android-a-槽直启)。
 
