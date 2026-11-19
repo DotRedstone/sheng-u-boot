@@ -4,6 +4,8 @@
 
 [下载 U-Boot 预览版](https://github.com/DotRedstone/sheng-u-boot/releases)
 
+符合接入条件的 Sheng Android ROM 共用同一个 `boot_b` 镜像。配置工具从原生 A 槽采集启动参数，安装到设备的 `linux-boot`；接入条件见 [Android A 槽直启说明](docs/preview_zh.md#android-a-槽直启)。
+
 | 启动目标 | 验证范围 |
 | --- | --- |
 | NixOS 7.3.0 | 实机到达桌面，验证过冷启动、关机充电和恢复回退 |

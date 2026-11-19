@@ -23,13 +23,16 @@
 - 已存在 `linux` 根分区和挂载到 `/boot` 的 `linux-boot` FAT ESP，ESP 上有与当前 NixOS 内核闭包匹配的 [EFI 载荷](https://github.com/DotRedstone/nixos-sheng/blob/735c224caf44da2a94c8cfa7aac9d68ef9fdc075/docs/uboot-efi-experiment_zh.md)。此预览不要求重刷或扩容 `linux`。若前置条件不满足，保留现有启动链。
 - 使用附件的 `sha256sums.txt` 核对镜像，再用 `fastboot getvar product` 和 `fastboot getvar current-slot` 确认 `sheng`、活动槽 `b`。具备已知可用的配套载荷后，仅刷 `fastboot flash boot_b sheng-u-boot-boot_b.img`。保留 Android A 槽、`userdata`、GPT、身份和校准分区。
 - Android v4 封装还依赖 ABL 读取 B 槽的 `vendor_boot_b`、`dtbo_b` 和 `vbmeta{,_system}_b`。在 B 槽刷过其他 ROM 后，先核对这些分区的备份与兼容性。实机出现过镜像写入成功但随后回退 A 槽，恢复同一次已启动备份中的配套分区后才进入 U-Boot。恢复时使用该设备自己的已知可用备份。
-- Android 入口要求从实际 ROM 采集配置、检查启动镜像有效长度，以及 A/B DTBO 相同。安装步骤见 [ROM 配置文档](https://github.com/DotRedstone/nixos-sheng/blob/735c224caf44da2a94c8cfa7aac9d68ef9fdc075/docs/uboot-android-rom-profile_zh.md)。ROM 更新后先按原生 A 槽验证，再重新采集。
 - 如果设备启动失败，可通过 ABL Fastboot 返回原生 Android A 槽，或刷回与现有 B 槽配套分区兼容、实机验证过的 `boot_b`。EFI 载荷有变时，按 NixOS 安装流程恢复 ESP 默认项。刷回前先检查当前槽位和配套分区。
+
+## Android A 槽直启
+
+符合接入条件的 Sheng ROM 共用同一个 U-Boot 镜像。U-Boot 从本机 A 槽读取现有启动镜像。`capture` 从原生启动的 Android 自动采集启动设备和 fstab 后缀，`install` 将配置保存到 `linux-boot` 的 `/SHENG/ANDROID.ENV`。更换 ROM 或 OTA 后，从原生 A 槽重新采集并校验，再验证菜单直启。具体步骤见 [ROM 配置文档](https://github.com/DotRedstone/nixos-sheng/blob/735c224caf44da2a94c8cfa7aac9d68ef9fdc075/docs/uboot-android-rom-profile_zh.md)。
+
+此预览的配置安装器检查 Sheng、A 槽、动态分区、Android v4 镜像格式与读取窗口，以及 A/B DTBO 字节一致性。直启沿用 ABL 交给 B 槽的设备树；A/B DTBO 不同时，配置安装器停止并要求核对。Android 直启未经 U-Boot AVB 验证。
 
 ## 已知限制
 
-- Android 直启未经 U-Boot AVB 验证。已在单台设备验证原 Android 16 ROM 与 2026-11-18 的 PixelOS 17 构建。更换 ROM 或 OTA 后需重新采集并实测。
-- 当前固件沿用 ABL 交给 B 槽的设备树。若 A/B DTBO 不同，保留两槽原镜像，安装器会拒绝自动接入。比较旧、新 ROM 时应核对覆盖层中的板型和 SoC 标识，索引可能随 ROM 构建变化。离线合成设备树可检查覆盖层，但仍需实机证明 Android 由 U-Boot 直启，并确认 ABL 活动槽保持为 B。
 - 目前仅有实体按键菜单与继承的屏幕输出。Android 和 NixOS 的触控、无线、音频等由各自系统和内核维护。
 - Alpine 和 Debian 仅完成启动探针。Windows 与 UniXNU 不随本版提供。
 
