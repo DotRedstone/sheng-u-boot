@@ -21,6 +21,8 @@
 
 **本版只刷 `boot_b`。** ABL 先选择活动槽，选中 B 槽才加载 U-Boot。U-Boot 随后从 `linux-boot` 加载 NixOS 的 EFI 引导器，或读取 A 槽的 `boot_a`、`vendor_boot_a`、`init_boot_a` 和 `dtbo_a` 来启动 Android。覆盖 `boot_a` 会破坏 Android 直启和原生 A 槽回退。
 
+已部署 Linux 分区和 EFI 载荷的设备可在 ABL Fastboot 完成下列刷入步骤，无需 TWRP。原厂布局的首次分区和安装仍需独立的安装流程。
+
 ### 刷入前检查
 
 - 设备已解锁，原生 Android A 槽已验证能启动。将本机可启动的 `boot_b`、完整 `linux-boot` 和重要数据备份到电脑。
@@ -60,6 +62,19 @@ fastboot reboot
 ```
 
 开机后应先出现 U-Boot 菜单，再由默认项进入 NixOS 世代菜单。已安装 Android 直启配置的设备可另测菜单里的 Android A 条目。
+
+### USB 查看分区
+
+在 U-Boot 菜单选择 `0. Exit to U-Boot console` 并接上电脑。Linux 一般识别为 `/dev/ttyACM*`，用串口终端打开对应设备。例如实际节点为 `/dev/ttyACM0` 时，运行 `picocom --baud 115200 /dev/ttyACM0`。按回车看到 `=>` 后运行：
+
+```text
+scsi info
+part list scsi 0
+```
+
+示例的 `0` 是实测用户数据所在的 UFS 逻辑单元编号。先看 `scsi info`，再使用实际编号确认 `userdata`、`linux` 和 `linux-boot`。完成后输入 `run menucmd` 返回启动菜单。此路径已用发布镜像在 Sheng 实机验证，操作仅查询存储布局。
+
+在 4 KiB 扇区的模拟盘上，上游 U-Boot 的通用 GPT 重写能新建两个 Linux 分区，且基础 GPT 校验通过，但原有分区的高位属性被清掉。Sheng 的真实分区表里存在这类厂商属性。原厂设备的分区流程需要保留这些字段，并在写入前后比较所有受保护表项。
 
 ### 回退
 

@@ -4,6 +4,8 @@
 
 [下载 U-Boot 预览版](https://github.com/DotRedstone/sheng-u-boot/releases) · [刷入与回退教程](docs/preview_zh.md#刷入教程)
 
+已部署 `linux` 和 `linux-boot` 的设备可通过 ABL Fastboot 直接刷入 U-Boot，也可在 [U-Boot 的 USB 控制台](docs/preview_zh.md#usb-查看分区)查看现有分区。两项操作无需 TWRP。
+
 符合接入条件的 Sheng Android ROM 共用同一个 `boot_b` 镜像。配置工具从原生 A 槽采集启动参数，安装到设备的 `linux-boot`；接入条件见 [Android A 槽直启说明](docs/preview_zh.md#android-a-槽直启)。
 
 | 启动目标 | 验证范围 |
